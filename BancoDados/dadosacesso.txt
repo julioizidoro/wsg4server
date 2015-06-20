@@ -1,0 +1,5 @@
+ip : 186.215.116.63
+porta : 8082
+user : root
+senha : jfhmaster123
+nome banco : wsg4
