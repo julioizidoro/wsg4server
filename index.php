@@ -16,10 +16,19 @@ $app->delete('/corridas/:id', 'deleteCorrida');
 $app->get('/corredores', 'getCorredores');
 $app->post('/corredores', 'addCorredor');
 
-$app->get('/corridas/:id/corredores', 'getCorredoresNaCorrida');
-$app->post('/corridas/:id/corredores', 'inscreveCorredorNaCorrida');
+$app->get('/corredores/:id', 'getCorredor');
+$app->put('/corredores/:id', 'updateCorredor');
+$app->delete('/corredores/:id', 'deleteCorredor');
 
+$app->get('/corridas/:id/corredores', 'getCorredoresNaCorrida');
+$app->get('/corredores/:id/corridas', 'getCorridasDoCorredor');
+
+$app->post('/corridas/:idCorrida/corredores/:idCorredor', 'inscreveCorredorNaCorrida');
+$app->post('/corredores/:idCorredor/corridas/:idCorrida', 'inscreveCorredorNaCorrida');
 $app->put('/corridas/:idCorrida/corredores/:idCorredor', 'updateInscricao');
+$app->put('/corredores/:idCorredor/corridas/:idCorrida', 'updateInscricao');
+$app->get('/corridas/:idCorrida/corredores/:idCorredor', 'getInscricao');
+$app->get('/corredores/:idCorredor/corridas/:idCorrida', 'getInscricao');
 
 $app->run();
 
@@ -37,23 +46,32 @@ function getRequestContents()
 }
 
 function getCorridas() {
-	$stmt = getConn()->query("SELECT * FROM Corrida");
+	$stmt = getConn()->query("SELECT * FROM corrida");
 	$corridas = $stmt->fetchAll(PDO::FETCH_OBJ);
 
 	http_response_code(200);
 	echo '{"corridas":'.json_encode($corridas)."}";
 }
 
+function bindCorridaParams($sql, $corrida)
+{
+	$stmt = getConn()->prepare($sql);
+	$stmt->bindParam("nome",$corrida->nome); 
+	$stmt->bindParam("descricao",$corrida->descricao); 
+	$stmt->bindParam("data",$corrida->data); 
+	$stmt->bindParam("cidade",$corrida->cidade); 
+	$stmt->bindParam("estado",$corrida->estado); 
+	$stmt->bindParam("valorinscricao",$corrida->valorinscricao); 
+	$stmt->bindParam("status",$corrida->status); 
+	return $stmt;
+}
+
 function addCorrida()
 {
 	$corrida = getRequestContents();
-	$sql = "INSERT INTO corridas (nome,preco,dataInclusao,idCategoria) values (:nome,:preco,:dataInclusao,:idCategoria) "; //todo
-	$conn = getConn();
-	$stmt = $conn->prepare($sql);
-	$stmt->bindParam("nome",$produto->nome); // todo
-	$stmt->bindParam("preco",$produto->preco);
-	$stmt->bindParam("dataInclusao",$produto->dataInclusao);
-	$stmt->bindParam("idCategoria",$produto->idCategoria);
+	$sql = "INSERT INTO corrida (nome,descricao,data,cidade,estado,valorinscricao,status) ".
+						"VALUES (:nome,:descricao,:data,:cidade,:estado,:valorinscricao,:status) "; 
+	$stmt = bindCorridaParams($sql, $corrida);
 	$stmt->execute();
 	$corrida->idcorrida = $conn->lastInsertId();
 	
@@ -63,9 +81,8 @@ function addCorrida()
 
 function getCorrida($id)
 {
-	$conn = getConn();
 	$sql = "SELECT * FROM corrida WHERE idcorrida=:id";
-	$stmt = $conn->prepare($sql);
+	$stmt = getConn()->prepare($sql);
 	$stmt->bindParam("id",$id);
 	$stmt->execute();
 	$corrida = $stmt->fetchObject();
@@ -75,21 +92,17 @@ function getCorrida($id)
 		echo json_encode($corrida);
 	} else {
 		http_response_code(404);
-		echo "{'message':'Corrida nao encontrada'}";
+		echo "{'message':'Nao existe corrida com esse ID.'}";
 	}
 }
 
 function updateCorrida($id)
 {
 	$corrida = getRequestContents();
-	$sql = "UPDATE corridas SET nome=:nome,preco=:preco,dataInclusao=:dataInclusao,idCategoria=:idCategoria WHERE   idcorrida=:id"; // todo
-	$conn = getConn();
-	$stmt = $conn->prepare($sql);
-	$stmt->bindParam("nome",$produto->nome); // todo
-	$stmt->bindParam("preco",$produto->preco);
-	$stmt->bindParam("dataInclusao",$produto->dataInclusao);
-	$stmt->bindParam("idCategoria",$produto->idCategoria);
-	$stmt->bindParam("idcorrida",$id);
+	$sql = "UPDATE corrida SET nome=:nome,descricao=:descricao,data=:data,cidade=:cidade,estado=:estado,valorinscricao=:valorinscricao,status=:status ".
+	               "WHERE idcorrida=:id"; 
+	$stmt = bindCorridaParams($sql, $corrida);
+	$stmt->bindParam("id",$id);
 	$stmt->execute();
 
 	http_response_code(200);
@@ -98,14 +111,13 @@ function updateCorrida($id)
 
 function deleteCorrida($id)
 {
-	$sql = "DELETE FROM corridas WHERE idcorrida=:id";
-	$conn = getConn();
-	$stmt = $conn->prepare($sql);
-	$stmt->bindParam("idcorrida",$id);
+	$sql = "DELETE FROM corrida WHERE idcorrida=:id";
+	$stmt = getConn()->prepare($sql);
+	$stmt->bindParam("id",$id);
 	$stmt->execute();
 
 	http_response_code(200);
-	echo "{'message':'Produto apagado'}";
+	echo "{'message':'Corrida apagada'}";
 }
 
 function getCorredores() {
@@ -116,16 +128,23 @@ function getCorredores() {
 	echo '{"corredores":'.json_encode($corredores)."}";
 }
 
+function bindCorredorParams($sql, $corredor)
+{
+	$stmt = getConn()->prepare($sql);
+	$stmt->bindParam("nome",$corredor->nome); 
+	$stmt->bindParam("datanascimento",$corredor->datanascimento); 
+	$stmt->bindParam("cidade",$corredor->cidade); 
+	$stmt->bindParam("estado",$corredor->estado); 
+	$stmt->bindParam("status",$corredor->status); 
+	return $stmt;
+}
+
 function addCorredor()
 {
 	$corredor = getRequestContents();
-	$sql = "INSERT INTO corredores (nome,preco,dataInclusao,idCategoria) values (:nome,:preco,:dataInclusao,:idCategoria) "; //todo
-	$conn = getConn();
-	$stmt = $conn->prepare($sql);
-	$stmt->bindParam("nome",$corredor->nome); // todo
-	$stmt->bindParam("preco",$produto->preco);
-	$stmt->bindParam("dataInclusao",$produto->dataInclusao);
-	$stmt->bindParam("idCategoria",$produto->idCategoria);
+	$sql = "INSERT INTO corredor (nome,datanascimento,cidade,estado,status) ".
+	                    "VALUES (:nome,:datanascimento,:cidade,:estado,:status) "; 
+	$stmt = bindCorredorParams($sql, $corredor); 
 	$stmt->execute();
 	$corredor->idcorredor = $conn->lastInsertId();
 	
@@ -133,10 +152,52 @@ function addCorredor()
 	echo json_encode($corredor);
 }
 
+function getCorredor($id)
+{
+	$sql = "SELECT * FROM corredor WHERE idcorredor=:id";
+	$stmt = getConn()->prepare($sql);
+	$stmt->bindParam("id",$id);
+	$stmt->execute();
+	$corredor = $stmt->fetchObject();
+	
+	if ($corredor != false) {
+		http_response_code(200);
+		echo json_encode($corredor);
+	} else {
+		http_response_code(404);
+		echo "{'message':'Nao existe corredor com esse ID.'}";
+	}
+}
+
+function updateCorredor($id)
+{
+	$corrida = getRequestContents();
+	$sql = "UPDATE corredor SET nome=:nome,datanascimento=:datanascimento,cidade=:cidade,estado=:estado,status=:status ".
+	               "WHERE idcorredor=:id"; 
+	$stmt = bindCorredorParams($sql, $corredor);
+	$stmt->bindParam("id",$id);
+	$stmt->execute();
+
+	http_response_code(200);
+	echo json_encode($corredor);
+}
+
+function deleteCorredor($id)
+{
+	$sql = "DELETE FROM corredor WHERE idcorredor=:id";
+	$stmt = getConn()->prepare($sql);
+	$stmt->bindParam("id",$id);
+	$stmt->execute();
+
+	http_response_code(200);
+	echo "{'message':'Corredor apagado'}";
+}
+
 function getCorredoresNaCorrida($id)
 {
 	$conn = getConn();
-	$sql = "SELECT c.* FROM inscricoes i INNER JOIN corredores c ON (i.corredor_idcorredor = c.idcorredor) WHERE corrida_idcorrida=:id"; 
+	$sql = "SELECT c.* FROM inscricao i INNER JOIN corredor c ON (i.corredor_idcorredor = c.idcorredor) ".
+				      "WHERE corrida_idcorrida=:id"; 
 	$stmt = $conn->prepare($sql);
 	$stmt->bindParam("id",$id);
 	$stmt->execute();
@@ -146,14 +207,28 @@ function getCorredoresNaCorrida($id)
 	echo '{"corredores":'.json_encode($corredores)."}";
 }
 
-function inscreveCorredorNaCorrida($id)
+function getCorridasDoCorredor($id)
 {
-	$corredor = getRequestContents();
-	$sql = "INSERT INTO inscricoes (corrida_idcorrida, corredor_idcorredor, statuspagamento) values (:id_corrida,:id_corredor, false) "; 
+	$conn = getConn();
+	$sql = "SELECT c.* FROM inscricao i INNER JOIN corrida c ON (i.corrida_idcorrida = c.idcorrida) ".
+				      "WHERE corredor_idcorredor=:id"; 
+	$stmt = $conn->prepare($sql);
+	$stmt->bindParam("id",$id);
+	$stmt->execute();
+	$corridas = $stmt->fetchAll(PDO::FETCH_OBJ);
+
+	http_response_code(200);
+	echo '{"corridas":'.json_encode($corridas)."}";
+}
+
+function inscreveCorredorNaCorrida($idCorrida, $idCorredor)
+{
+	$sql = "INSERT INTO inscricao (corrida_idcorrida, corredor_idcorredor, statuspagamento) ".
+	                   "VALUES (:id_corrida,:id_corredor, false) "; // false pq supõe que primeiro só insere e depois registra o pagamento
 	$conn = getConn();
 	$stmt = $conn->prepare($sql);
-	$stmt->bindParam("id_corrida",$id);
-	$stmt->bindParam("id_corredor", $corredor->idcorredor);
+	$stmt->bindParam("id_corrida",$idCorrida);
+	$stmt->bindParam("id_corredor", $idCorredor);
 	$stmt->execute();
 	http_response_code(201);
 }
@@ -161,7 +236,7 @@ function inscreveCorredorNaCorrida($id)
 function updateInscricao($idCorrida, $idCorredor)
 {
 	$inscricao = getRequestContents();
-	$sql = "UPDATE inscricoes SET statuspagamento=:status_pgto,posicao=:posicao,tempo=:tempo ".
+	$sql = "UPDATE inscricao SET statuspagamento=:status_pgto,posicao=:posicao,tempo=:tempo ".
 	               "WHERE corrida_idcorrida = :id_corrida AND corredor_idcorredor = :id_corredor";
 
 	$conn = getConn();
@@ -173,6 +248,24 @@ function updateInscricao($idCorrida, $idCorredor)
 	$stmt->bindParam("id_corredor",$idCorredor); 
 	$stmt->execute();
 	http_response_code(200);
+}
+
+function getInscricao($idCorredor, $idCorrida)
+{
+	$sql = "SELECT * FROM inscricao WHERE corredor_idcorredor=:idCorredor AND corrida_idcorrida=:idCorrida";
+	$stmt = getConn()->prepare($sql);
+	$stmt->bindParam("idCorredor",$idCorredor);
+	$stmt->bindParam("idCorrida",$idCorrida);
+	$stmt->execute();
+	$inscricao = $stmt->fetchObject();
+	
+	if ($inscricao != false) {
+		http_response_code(200);
+		echo json_encode($inscricao);
+	} else {
+		http_response_code(404);
+		echo "{'message':'Corredor nao esta inscrito nessa corrida.'}";
+	}
 }
 
 ?>
