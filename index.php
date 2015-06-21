@@ -1,8 +1,8 @@
 <?php
 require 'Slim-2.6.2/Slim/Slim.php';
 \Slim\Slim::registerAutoloader();
-
 $app = new \Slim\Slim();
+
 $app->response()->header('Content-Type', 'application/json;charset=utf-8');
 $app->response()->header('Access-Control-Allow-Origin', '*');
 
@@ -25,8 +25,7 @@ $app->run();
 
 function getConn()
 {
-		// 186.215.116.63:8082 root:jhmaster123
-  return new PDO('mysql:host=localhost:3306;dbname=wsg4','root','',
+  return new PDO('mysql:host=186.215.116.63:8082;dbname=wsg4','root','jfhmaster123',
                   array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"
 	   			));
 }
