@@ -30,6 +30,8 @@ $app->put('/corridas/:idCorrida/corredores/:idCorredor', 'updateInscricao');
 $app->put('/corredores/:idCorredor/corridas/:idCorrida', 'updateInscricao');
 $app->get('/corridas/:idCorrida/corredores/:idCorredor', 'getInscricao');
 $app->get('/corredores/:idCorredor/corridas/:idCorrida', 'getInscricao');
+$app->delete('/corridas/:idCorrida/corredores/:idCorredor', 'deleteInscricao');
+$app->delete('/corredores/:idCorredor/corridas/:idCorrida', 'deleteInscricao');
 
 $app->run();
 

@@ -75,4 +75,16 @@ function getInscricao($idCorredor, $idCorrida)
 	}
 }
 
+function deleteInscricao($idCorredor, $idCorrida)
+{
+	$sql = "DELETE FROM inscricao WHERE corredor_idcorredor=:idCorredor AND corrida_idcorrida=:idCorrida";
+	$stmt = getConn()->prepare($sql);
+	$stmt->bindParam("idCorredor",$idCorredor);
+	$stmt->bindParam("idCorrida",$idCorrida);
+	$stmt->execute();
+
+	http_response_code(200);
+	echo "{'message':'Inscricao removida'}";
+}
+
 ?>
