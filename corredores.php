@@ -23,7 +23,7 @@ function getCorredores() {
 	$stmt = getConn()->query("SELECT * FROM corredor");
 	$corredores = $stmt->fetchAll(PDO::FETCH_OBJ);
 
-	http_response_code(200);
+	header('X-PHP-Response-Code: 200', true, 200);
 	echo '{"corredores":'.json_encode($corredores)."}";
 }
 
@@ -36,7 +36,7 @@ function addCorredor()
 	$stmt->execute();
 	$corredor->idcorredor = $conn->lastInsertId();
 	
-	http_response_code(201);
+	header('X-PHP-Response-Code: 201', true, 201);
 	echo json_encode($corredor);
 }
 
@@ -49,10 +49,10 @@ function getCorredor($id)
 	$corredor = $stmt->fetchObject();
 	
 	if ($corredor != false) {
-		http_response_code(200);
+		header('X-PHP-Response-Code: 200', true, 200);
 		echo json_encode($corredor);
 	} else {
-		http_response_code(404);
+		header('X-PHP-Response-Code: 404', true, 404);
 		echo "{'message':'Nao existe corredor com esse ID.'}";
 	}
 }
@@ -66,7 +66,7 @@ function updateCorredor($id)
 	$stmt->bindParam("id",$id);
 	$stmt->execute();
 
-	http_response_code(200);
+	header('X-PHP-Response-Code: 200', true, 200);
 	echo json_encode($corredor);
 }
 
@@ -77,7 +77,7 @@ function deleteCorredor($id)
 	$stmt->bindParam("id",$id);
 	$stmt->execute();
 
-	http_response_code(200);
+	header('X-PHP-Response-Code: 200', true, 200);
 	echo "{'message':'Corredor apagado'}";
 }
 
