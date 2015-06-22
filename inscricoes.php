@@ -10,7 +10,7 @@ function getCorredoresNaCorrida($id)
 	$stmt->execute();
 	$corredores = $stmt->fetchAll(PDO::FETCH_OBJ);
 
-	http_response_code(200);
+	header('X-PHP-Response-Code: 200', true, 200);
 	echo '{"corredores":'.json_encode($corredores)."}";
 }
 
@@ -24,7 +24,7 @@ function getCorridasDoCorredor($id)
 	$stmt->execute();
 	$corridas = $stmt->fetchAll(PDO::FETCH_OBJ);
 
-	http_response_code(200);
+	header('X-PHP-Response-Code: 200', true, 200);
 	echo '{"corridas":'.json_encode($corridas)."}";
 }
 
@@ -37,7 +37,7 @@ function inscreveCorredorNaCorrida($idCorrida, $idCorredor)
 	$stmt->bindParam("id_corrida",$idCorrida);
 	$stmt->bindParam("id_corredor", $idCorredor);
 	$stmt->execute();
-	http_response_code(201);
+	header('X-PHP-Response-Code: 201', true, 201);
 }
 
 function updateInscricao($idCorrida, $idCorredor)
@@ -54,7 +54,7 @@ function updateInscricao($idCorrida, $idCorredor)
 	$stmt->bindParam("id_corrida",$idCorrida); 
 	$stmt->bindParam("id_corredor",$idCorredor); 
 	$stmt->execute();
-	http_response_code(200);
+	header('X-PHP-Response-Code: 200', true, 200);
 }
 
 function getInscricao($idCorredor, $idCorrida)
@@ -67,10 +67,10 @@ function getInscricao($idCorredor, $idCorrida)
 	$inscricao = $stmt->fetchObject();
 	
 	if ($inscricao != false) {
-		http_response_code(200);
+		header('X-PHP-Response-Code: 200', true, 200);
 		echo json_encode($inscricao);
 	} else {
-		http_response_code(404);
+		header('X-PHP-Response-Code: 404', true, 404);
 		echo "{'message':'Corredor nao esta inscrito nessa corrida.'}";
 	}
 }
@@ -83,7 +83,7 @@ function deleteInscricao($idCorredor, $idCorrida)
 	$stmt->bindParam("idCorrida",$idCorrida);
 	$stmt->execute();
 
-	http_response_code(200);
+	header('X-PHP-Response-Code: 200', true, 200);
 	echo "{'message':'Inscricao removida'}";
 }
 
