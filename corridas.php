@@ -25,7 +25,7 @@ function getCorridas() {
 	$stmt = getConn()->query("SELECT * FROM corrida");
 	$corridas = $stmt->fetchAll(PDO::FETCH_OBJ);
 
-	http_response_code(200);
+	header('X-PHP-Response-Code: 200', true, 200);
 	echo '{"corridas":'.json_encode($corridas)."}";
 }
 
@@ -38,7 +38,7 @@ function addCorrida()
 	$stmt->execute();
 	$corrida->idcorrida = $conn->lastInsertId();
 	
-	http_response_code(201);
+	header('X-PHP-Response-Code: 201', true, 201);
 	echo json_encode($corrida);
 }
 
@@ -51,10 +51,10 @@ function getCorrida($id)
 	$corrida = $stmt->fetchObject();
 	
 	if ($corrida != false) {
-		http_response_code(200);
+		header('X-PHP-Response-Code: 200', true, 200);
 		echo json_encode($corrida);
 	} else {
-		http_response_code(404);
+		header('X-PHP-Response-Code: 404', true, 404);
 		echo "{'message':'Nao existe corrida com esse ID.'}";
 	}
 }
@@ -68,7 +68,7 @@ function updateCorrida($id)
 	$stmt->bindParam("id",$id);
 	$stmt->execute();
 
-	http_response_code(200);
+	header('X-PHP-Response-Code: 200', true, 200);
 	echo json_encode($corrida);
 }
 
@@ -79,7 +79,7 @@ function deleteCorrida($id)
 	$stmt->bindParam("id",$id);
 	$stmt->execute();
 
-	http_response_code(200);
+	header('X-PHP-Response-Code: 200', true, 200);
 	echo "{'message':'Corrida apagada'}";
 }
 
