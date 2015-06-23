@@ -21,66 +21,129 @@ function bindCorridaParams($sql, $corrida)
 // Métodos CRUD
 // *********************************************************************************
 
-function getCorridas() {
-	$stmt = getConn()->query("SELECT * FROM corrida");
-	$corridas = $stmt->fetchAll(PDO::FETCH_OBJ);
+function getCorridas() 
+{
+	try
+	{
+		$stmt = getConn()->query("SELECT * FROM corrida");
+		$corridas = $stmt->fetchAll(PDO::FETCH_OBJ);
 
-	header('X-PHP-Response-Code: 200', true, 200);
-	echo '{"corridas":'.json_encode($corridas)."}";
+		header('X-PHP-Response-Code: 200', true, 200);
+		echo '{"corridas":'.json_encode($corridas)."}";
+	}
+	catch (Exception $ex)
+	{
+		header('X-PHP-Response-Code: 500', true, 500);
+		echo "{'message':'Ocorreu um erro processando o comando. Detalhes: " . $ex->getMessage() ."'}";	
+	}		
 }
 
 function addCorrida()
 {
-	$corrida = getRequestContents();
-	$sql = "INSERT INTO corrida (nome,descricao,data,cidade,estado,valorinscricao,status) ".
-						"VALUES (:nome,:descricao,:data,:cidade,:estado,:valorinscricao,:status) "; 
-	$stmt = bindCorridaParams($sql, $corrida);
-	$stmt->execute();
-	$corrida->idcorrida = $conn->lastInsertId();
-	
-	header('X-PHP-Response-Code: 201', true, 201);
-	echo json_encode($corrida);
+	try
+	{
+		$corrida = getRequestContents();
+		$sql = "INSERT INTO corrida (nome,descricao,data,cidade,estado,valorinscricao,status) ".
+							"VALUES (:nome,:descricao,:data,:cidade,:estado,:valorinscricao,:status) "; 
+		$stmt = bindCorridaParams($sql, $corrida);
+		if ($stmt->execute())
+		{
+			$corrida->idcorrida = $conn->lastInsertId();
+			
+			header('X-PHP-Response-Code: 201', true, 201);
+			echo json_encode($corrida);
+		}
+		else
+		{
+			header('X-PHP-Response-Code: 412', true, 412);
+			echo "{'message':'Os dados da corrida não puderam ser inseridos.'}";
+		}
+	}
+	catch (Exception $ex)
+	{
+		header('X-PHP-Response-Code: 500', true, 500);
+		echo "{'message':'Ocorreu um erro processando o comando. Detalhes: " . $ex->getMessage() ."'}";	
+	}		
 }
 
 function getCorrida($id)
 {
-	$sql = "SELECT * FROM corrida WHERE idcorrida=:id";
-	$stmt = getConn()->prepare($sql);
-	$stmt->bindParam("id",$id);
-	$stmt->execute();
-	$corrida = $stmt->fetchObject();
-	
-	if ($corrida != false) {
-		header('X-PHP-Response-Code: 200', true, 200);
-		echo json_encode($corrida);
-	} else {
-		header('X-PHP-Response-Code: 404', true, 404);
-		echo "{'message':'Nao existe corrida com esse ID.'}";
+	try
+	{
+		$sql = "SELECT * FROM corrida WHERE idcorrida=:id";
+		$stmt = getConn()->prepare($sql);
+		$stmt->bindParam("id",$id);
+		$stmt->execute();
+		$corrida = $stmt->fetchObject();
+		
+		if ($corrida != false) 
+		{
+			header('X-PHP-Response-Code: 200', true, 200);
+			echo json_encode($corrida);
+		} 
+		else 
+		{
+			header('X-PHP-Response-Code: 404', true, 404);
+			echo "{'message':'Nao existe corrida com esse ID.'}";
+		}
 	}
+	catch (Exception $ex)
+	{
+		header('X-PHP-Response-Code: 500', true, 500);
+		echo "{'message':'Ocorreu um erro processando o comando. Detalhes: " . $ex->getMessage() ."'}";	
+	}	
 }
 
 function updateCorrida($id)
 {
-	$corrida = getRequestContents();
-	$sql = "UPDATE corrida SET nome=:nome,descricao=:descricao,data=:data,cidade=:cidade,estado=:estado,valorinscricao=:valorinscricao,status=:status ".
-	               "WHERE idcorrida=:id"; 
-	$stmt = bindCorridaParams($sql, $corrida);
-	$stmt->bindParam("id",$id);
-	$stmt->execute();
-
-	header('X-PHP-Response-Code: 200', true, 200);
-	echo json_encode($corrida);
+	try
+	{
+		$corrida = getRequestContents();
+		$sql = "UPDATE corrida SET nome=:nome,descricao=:descricao,data=:data,cidade=:cidade,estado=:estado,valorinscricao=:valorinscricao,status=:status ".
+					   "WHERE idcorrida=:id"; 
+		$stmt = bindCorridaParams($sql, $corrida);
+		$stmt->bindParam("id",$id);
+		if ($stmt->execute())
+		{
+			header('X-PHP-Response-Code: 200', true, 200);
+			echo json_encode($corrida);
+		}
+		else
+		{
+			header('X-PHP-Response-Code: 412', true, 412);
+			echo "{'message':'Os dados da corrida não puderam ser atualizados.'}";
+		}
+	}
+	catch (Exception $ex)
+	{
+		header('X-PHP-Response-Code: 500', true, 500);
+		echo "{'message':'Ocorreu um erro processando o comando. Detalhes: " . $ex->getMessage() ."'}";	
+	}			
 }
 
 function deleteCorrida($id)
 {
-	$sql = "DELETE FROM corrida WHERE idcorrida=:id";
-	$stmt = getConn()->prepare($sql);
-	$stmt->bindParam("id",$id);
-	$stmt->execute();
-
-	header('X-PHP-Response-Code: 200', true, 200);
-	echo "{'message':'Corrida apagada'}";
+	try
+	{
+		$sql = "DELETE FROM corrida WHERE idcorrida=:id";
+		$stmt = getConn()->prepare($sql);
+		$stmt->bindParam("id",$id);
+		if ($stmt->execute())
+		{
+			header('X-PHP-Response-Code: 200', true, 200);
+			echo "{'message':'Corrida apagada'}";
+		}
+		else
+		{
+			header('X-PHP-Response-Code: 412', true, 412);
+			echo "{'message':'A corrida não pôde ser excluída.'}";
+		}
+	}
+	catch (Exception $ex)
+	{
+		header('X-PHP-Response-Code: 500', true, 500);
+		echo "{'message':'Ocorreu um erro processando o comando. Detalhes: " . $ex->getMessage() ."'}";	
+	}	
 }
 
 ?>
