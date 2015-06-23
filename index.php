@@ -1,5 +1,6 @@
 <?php
 require 'Slim-2.6.2/Slim/Slim.php';
+require 'db.php';
 
 \Slim\Slim::registerAutoloader();
 $app = new \Slim\Slim();
@@ -37,7 +38,7 @@ $app->run();
 
 function getConn()
 {
-  return new PDO('mysql:host=localhost;dbname=ceolato_wsg4senai','ceolato_root','adBAJq0D3k',
+  return new PDO('mysql:host='.DB_HOST.';dbname='.DB_DATABASE , DB_USER , DB_PASSWORD ,
                   array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"
 	   			));
 }
