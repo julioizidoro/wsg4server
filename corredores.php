@@ -15,6 +15,16 @@ function bindCorredorParams($sql, $corredor)
 	return $stmt;
 }
 
+function selectCorredorById($id)
+{
+	$sql = "SELECT * FROM corredor WHERE idcorredor=:id";
+	$stmt = getConn()->prepare($sql);
+	$stmt->bindParam("id",$id);
+	$stmt->execute();
+	return $stmt->fetchObject();
+}
+
+
 // *********************************************************************************
 // Métodos CRUD
 // *********************************************************************************
@@ -68,11 +78,7 @@ function getCorredor($id)
 {
 	try
 	{
-		$sql = "SELECT * FROM corredor WHERE idcorredor=:id";
-		$stmt = getConn()->prepare($sql);
-		$stmt->bindParam("id",$id);
-		$stmt->execute();
-		$corredor = $stmt->fetchObject();
+		$corredor = selectCorredorById($id);
 		
 		if ($corredor != false) 
 		{
@@ -96,20 +102,30 @@ function updateCorredor($id)
 {
 	try
 	{
-		$corrida = getRequestContents();
-		$sql = "UPDATE corredor SET nome=:nome, datanascimento=:datanascimento, cidade=:cidade, estado=:estado, status=:status ".
-					   "WHERE idcorredor=:id"; 
-		$stmt = bindCorredorParams($sql, $corredor);
-		$stmt->bindParam("id",$id);
-		if ($stmt->execute())
+		$corredor = selectCorredorById($id);
+
+		if ($corredor != false) 
 		{
-			header('X-PHP-Response-Code: 200', true, 200);
-			echo json_encode($corredor);
-		}
-		else
+			$corrida = getRequestContents();
+			$sql = "UPDATE corredor SET nome=:nome, datanascimento=:datanascimento, cidade=:cidade, estado=:estado, status=:status ".
+						   "WHERE idcorredor=:id"; 
+			$stmt = bindCorredorParams($sql, $corredor);
+			$stmt->bindParam("id",$id);
+			if ($stmt->execute())
+			{
+				header('X-PHP-Response-Code: 200', true, 200);
+				echo json_encode($corredor);
+			}
+			else
+			{
+				header('X-PHP-Response-Code: 412', true, 412);
+				echo "{'message':'Os dados do corredor não puderam ser atualizados.'}";
+			}
+		} 
+		else 
 		{
-			header('X-PHP-Response-Code: 412', true, 412);
-			echo "{'message':'Os dados do corredor não puderam ser atualizados.'}";
+			header('X-PHP-Response-Code: 404', true, 404);
+			echo "{'message':'Nao existe corredor com esse ID.'}";
 		}
 	}
 	catch (Exception $ex)
