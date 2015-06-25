@@ -38,7 +38,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `ceolato_wsg4senai`.`corredor` (
   `idcorredor` INT NOT NULL AUTO_INCREMENT,
-  `nome` VARCHAR(10) NULL,
+  `nome` VARCHAR(100) NULL,
   `datanascimento` DATE NULL,
   `cidade` VARCHAR(50) NULL,
   `estado` VARCHAR(2) NULL,
@@ -62,12 +62,12 @@ CREATE TABLE IF NOT EXISTS `ceolato_wsg4senai`.`inscricao` (
   INDEX `fk_inscricao_corredor1_idx` (`corredor_idcorredor` ASC),
   CONSTRAINT `fk_inscricao_corrida`
     FOREIGN KEY (`corrida_idcorrida`)
-    REFERENCES `wsg4`.`corrida` (`idcorrida`)
+    REFERENCES `ceolato_wsg4senai`.`corrida` (`idcorrida`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_inscricao_corredor1`
     FOREIGN KEY (`corredor_idcorredor`)
-    REFERENCES `wsg4`.`corredor` (`idcorredor`)
+    REFERENCES `ceolato_wsg4senai`.`corredor` (`idcorredor`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;

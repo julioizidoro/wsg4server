@@ -1,5 +1,6 @@
 <?php
 require 'Slim-2.6.2/Slim/Slim.php';
+require 'bd.php';
 
 \Slim\Slim::registerAutoloader();
 $app = new \Slim\Slim();
@@ -10,6 +11,8 @@ $app->response()->header('Access-Control-Allow-Origin', '*');
 include 'corridas.php';
 $app->get('/corridas', 'getCorridas');
 $app->post('/corridas', 'addCorrida');
+$app->get('/corridas/ultimas', 'getUltimasCorridas');
+$app->get('/corridas/proximas', 'getProximasCorridas');
 $app->get('/corridas/:id', 'getCorrida');
 $app->put('/corridas/:id', 'updateCorrida');
 $app->delete('/corridas/:id', 'deleteCorrida');
@@ -37,7 +40,7 @@ $app->run();
 
 function getConn()
 {
-  return new PDO('mysql:host=localhost;dbname=ceolato_wsg4senai','ceolato_root','adBAJq0D3k',
+  return new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_DATABASE , DB_USER , DB_PASSWORD ,
                   array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"
 	   			));
 }

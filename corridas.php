@@ -146,4 +146,40 @@ function deleteCorrida($id)
 	}	
 }
 
+function getUltimasCorridas(){
+	
+	try
+	{
+		$sql = "SELECT * FROM corrida WHERE data < sysdate() order by data DESC";
+		$stmt = getConn()->query($sql);
+		$corridas = $stmt->fetchAll(PDO::FETCH_OBJ);
+
+		header('X-PHP-Response-Code: 200', true, 200);
+		echo '{"corridas":'.json_encode($corridas)."}";
+	}
+	catch (Exception $ex)
+	{
+		header('X-PHP-Response-Code: 500', true, 500);
+		echo "{'message':'Ocorreu um erro processando o comando. Detalhes: " . $ex->getMessage() ."'}";	
+	}	
+}
+
+function getProximasCorridas(){
+	
+	try
+	{
+		$sql = "SELECT * FROM corrida WHERE data >= sysdate() order by data ASC";
+		$stmt = getConn()->query($sql);
+		$corridas = $stmt->fetchAll(PDO::FETCH_OBJ);
+
+		header('X-PHP-Response-Code: 200', true, 200);
+		echo '{"corridas":'.json_encode($corridas)."}";
+	}
+	catch (Exception $ex)
+	{
+		header('X-PHP-Response-Code: 500', true, 500);
+		echo "{'message':'Ocorreu um erro processando o comando. Detalhes: " . $ex->getMessage() ."'}";	
+	}	
+}
+
 ?>
