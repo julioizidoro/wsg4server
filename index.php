@@ -31,10 +31,14 @@ $app->post('/corridas/:idCorrida/corredores/:idCorredor', 'inscreveCorredorNaCor
 $app->post('/corredores/:idCorredor/corridas/:idCorrida', 'inscreveCorredorNaCorrida');
 $app->put('/corridas/:idCorrida/corredores/:idCorredor', 'updateInscricao');
 $app->put('/corredores/:idCorredor/corridas/:idCorrida', 'updateInscricao');
-$app->get('/corridas/:idCorrida/corredores/:idCorredor', 'getInscricao');
-$app->get('/corredores/:idCorredor/corridas/:idCorrida', 'getInscricao');
-$app->delete('/corridas/:idCorrida/corredores/:idCorredor', 'deleteInscricao');
-$app->delete('/corredores/:idCorredor/corridas/:idCorrida', 'deleteInscricao');
+$app->get('/corridas/:idCorrida/corredores/:idCorredor', 'getInscricaoCorrida');
+$app->get('/corredores/:idCorredor/corridas/:idCorrida', 'getInscricaoCorredor');
+$app->delete('/corridas/:idCorrida/corredores/:idCorredor', 'deleteInscricaoCorrida');
+$app->delete('/corredores/:idCorredor/corridas/:idCorrida', 'deleteInscricaoCorredor');
+
+$app->get('/', function() use ($app) {
+    $app->redirect('docs/Index.html');
+});
 
 $app->run();
 

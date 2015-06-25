@@ -4,9 +4,13 @@
 // Métodos auxiliares
 // *********************************************************************************
 
-function bindCorredorParams($sql, $corredor)
+function bindCorredorParams($sql, $corredor, $conn = null)
 {
-	$stmt = getConn()->prepare($sql);
+	if (!isset($conn))
+	{
+		$conn = getConn();
+	}
+	$stmt = $conn->prepare($sql);
 	$stmt->bindParam("nome",$corredor->nome); 
 	$stmt->bindParam("datanascimento",$corredor->datanascimento); 
 	$stmt->bindParam("cidade",$corredor->cidade); 
@@ -53,7 +57,8 @@ function addCorredor()
 		$corredor = getRequestContents();
 		$sql = "INSERT INTO corredor (nome, datanascimento, cidade, estado, status) ".
 							"VALUES (:nome, :datanascimento, :cidade, :estado, :status) "; 
-		$stmt = bindCorredorParams($sql, $corredor); 
+		$conn = getConn();
+		$stmt = bindCorredorParams($sql, $corredor, $conn); 
 		if ($stmt->execute())
 		{
 			$corredor->idcorredor = $conn->lastInsertId();
@@ -106,7 +111,7 @@ function updateCorredor($id)
 
 		if ($corredor != false) 
 		{
-			$corrida = getRequestContents();
+			$corredor = getRequestContents();
 			$sql = "UPDATE corredor SET nome=:nome, datanascimento=:datanascimento, cidade=:cidade, estado=:estado, status=:status ".
 						   "WHERE idcorredor=:id"; 
 			$stmt = bindCorredorParams($sql, $corredor);
@@ -139,19 +144,29 @@ function deleteCorredor($id)
 {
 	try
 	{
-		$sql = "DELETE FROM corredor WHERE idcorredor=:id";
-		$stmt = getConn()->prepare($sql);
-		$stmt->bindParam("id",$id);
-		if ($stmt->execute())
+		$corredor = selectCorredorById($id);
+
+		if ($corredor != false) 		
 		{
-			header('X-PHP-Response-Code: 200', true, 200);
-			echo "{'message':'Corredor excluído.'}";	
+			$sql = "DELETE FROM corredor WHERE idcorredor=:id";
+			$stmt = getConn()->prepare($sql);
+			$stmt->bindParam("id",$id);
+			if ($stmt->execute())
+			{
+				header('X-PHP-Response-Code: 200', true, 200);
+				echo "{'message':'Corredor excluído.'}";	
+			}
+			else
+			{
+				header('X-PHP-Response-Code: 412', true, 412);
+				echo "{'message':'O corredor não pôde ser excluído.'}";
+			}
 		}
-		else
+		else 
 		{
-			header('X-PHP-Response-Code: 412', true, 412);
-			echo "{'message':'O corredor não pôde ser excluído.'}";
-		}
+			header('X-PHP-Response-Code: 404', true, 404);
+			echo "{'message':'Nao existe corredor com esse ID.'}";
+		}		
 	}
 	catch (Exception $ex)
 	{

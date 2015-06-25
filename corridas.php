@@ -4,9 +4,13 @@
 // Métodos auxiliares
 // *********************************************************************************
 
-function bindCorridaParams($sql, $corrida)
+function bindCorridaParams($sql, $corrida, $conn = null)
 {
-	$stmt = getConn()->prepare($sql);
+	if (!isset($conn))
+	{
+		$conn = getConn();
+	}
+	$stmt = $conn->prepare($sql);
 	$stmt->bindParam("nome",$corrida->nome); 
 	$stmt->bindParam("descricao",$corrida->descricao); 
 	$stmt->bindParam("data",$corrida->data); 
@@ -15,6 +19,15 @@ function bindCorridaParams($sql, $corrida)
 	$stmt->bindParam("valorinscricao",$corrida->valorinscricao); 
 	$stmt->bindParam("status",$corrida->status); 
 	return $stmt;
+}
+
+function selectCorridaById($id)
+{
+	$sql = "SELECT * FROM corrida WHERE idcorrida=:id";
+	$stmt = getConn()->prepare($sql);
+	$stmt->bindParam("id",$id);
+	$stmt->execute();
+	return $stmt->fetchObject();
 }
 
 // *********************************************************************************
@@ -45,7 +58,8 @@ function addCorrida()
 		$corrida = getRequestContents();
 		$sql = "INSERT INTO corrida (nome,descricao,data,cidade,estado,valorinscricao,status) ".
 							"VALUES (:nome,:descricao,:data,:cidade,:estado,:valorinscricao,:status) "; 
-		$stmt = bindCorridaParams($sql, $corrida);
+		$conn = getConn();
+		$stmt = bindCorridaParams($sql, $corrida, $conn);
 		if ($stmt->execute())
 		{
 			$corrida->idcorrida = $conn->lastInsertId();
@@ -70,14 +84,10 @@ function getCorrida($id)
 {
 	try
 	{
-		$sql = "SELECT * FROM corrida WHERE idcorrida=:id";
-		$stmt = getConn()->prepare($sql);
-		$stmt->bindParam("id",$id);
-		$stmt->execute();
-		$corrida = $stmt->fetchObject();
+		$corrida = selectCorridaById($id);
 		
 		if ($corrida != false) 
-		{
+		{		
 			header('X-PHP-Response-Code: 200', true, 200);
 			echo json_encode($corrida);
 		} 
@@ -98,21 +108,31 @@ function updateCorrida($id)
 {
 	try
 	{
-		$corrida = getRequestContents();
-		$sql = "UPDATE corrida SET nome=:nome,descricao=:descricao,data=:data,cidade=:cidade,estado=:estado,valorinscricao=:valorinscricao,status=:status ".
-					   "WHERE idcorrida=:id"; 
-		$stmt = bindCorridaParams($sql, $corrida);
-		$stmt->bindParam("id",$id);
-		if ($stmt->execute())
+		$corrida = selectCorridaById($id);
+		
+		if ($corrida != false) 
 		{
-			header('X-PHP-Response-Code: 200', true, 200);
-			echo json_encode($corrida);
+			$corrida = getRequestContents();
+			$sql = "UPDATE corrida SET nome=:nome,descricao=:descricao,data=:data,cidade=:cidade,estado=:estado,valorinscricao=:valorinscricao,status=:status ".
+						   "WHERE idcorrida=:id"; 
+			$stmt = bindCorridaParams($sql, $corrida);
+			$stmt->bindParam("id",$id);
+			if ($stmt->execute())
+			{
+				header('X-PHP-Response-Code: 200', true, 200);
+				echo json_encode($corrida);
+			}
+			else
+			{
+				header('X-PHP-Response-Code: 412', true, 412);
+				echo "{'message':'Os dados da corrida não puderam ser atualizados.'}";
+			}
 		}
-		else
+		else 
 		{
-			header('X-PHP-Response-Code: 412', true, 412);
-			echo "{'message':'Os dados da corrida não puderam ser atualizados.'}";
-		}
+			header('X-PHP-Response-Code: 404', true, 404);
+			echo "{'message':'Nao existe corrida com esse ID.'}";
+		}		
 	}
 	catch (Exception $ex)
 	{
@@ -125,19 +145,29 @@ function deleteCorrida($id)
 {
 	try
 	{
-		$sql = "DELETE FROM corrida WHERE idcorrida=:id";
-		$stmt = getConn()->prepare($sql);
-		$stmt->bindParam("id",$id);
-		if ($stmt->execute())
+		$corrida = selectCorridaById($id);
+		
+		if ($corrida != false) 
 		{
-			header('X-PHP-Response-Code: 200', true, 200);
-			echo "{'message':'Corrida apagada'}";
+			$sql = "DELETE FROM corrida WHERE idcorrida=:id";
+			$stmt = getConn()->prepare($sql);
+			$stmt->bindParam("id",$id);
+			if ($stmt->execute())
+			{
+				header('X-PHP-Response-Code: 200', true, 200);
+				echo "{'message':'Corrida apagada'}";
+			}
+			else
+			{
+				header('X-PHP-Response-Code: 412', true, 412);
+				echo "{'message':'A corrida não pôde ser excluída.'}";
+			}
 		}
-		else
+		else 
 		{
-			header('X-PHP-Response-Code: 412', true, 412);
-			echo "{'message':'A corrida não pôde ser excluída.'}";
-		}
+			header('X-PHP-Response-Code: 404', true, 404);
+			echo "{'message':'Nao existe corrida com esse ID.'}";
+		}		
 	}
 	catch (Exception $ex)
 	{

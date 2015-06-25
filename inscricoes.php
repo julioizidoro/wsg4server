@@ -57,7 +57,10 @@ function inscreveCorredorNaCorrida($idCorrida, $idCorredor)
 		if ($stmt->execute())
 			header('X-PHP-Response-Code: 201', true, 201);
 		else
+		{
 			header('X-PHP-Response-Code: 412', true, 412);
+			echo "{'message':'Não foi possível concluir a operação. ID da corrida ou ID do corregor não existe'}";	
+		}
 	}
 	catch (Exception $ex)
 	{
@@ -71,20 +74,23 @@ function updateInscricao($idCorrida, $idCorredor)
 	try
 	{
 		$inscricao = getRequestContents();
-		$sql = "UPDATE inscricao SET statuspagamento=:status_pgto,posicao=:posicao,tempo=:tempo ".
-					   "WHERE corrida_idcorrida = :id_corrida AND corredor_idcorredor = :id_corredor";
+		$sql = "UPDATE inscricao SET statuspagamento=:status_pgto, posicao=:posicao, tempo=:tempo ".
+					   "WHERE corrida_idcorrida=:id_corrida AND corredor_idcorredor=:id_corredor";
 
 		$conn = getConn();
 		$stmt = $conn->prepare($sql);
-		$stmt->bindParam("status_pgto",$inscricao->statuspagamento); 
-		$stmt->bindParam("posicao",$inscricao->posicao); 
-		$stmt->bindParam("tempo",$inscricao->tempo); 
-		$stmt->bindParam("id_corrida",$idCorrida); 
-		$stmt->bindParam("id_corredor",$idCorredor); 
+		$stmt->bindParam("status_pgto", $inscricao->statuspagamento); 
+		$stmt->bindParam("posicao", $inscricao->posicao); 
+		$stmt->bindParam("tempo", $inscricao->tempo); 
+		$stmt->bindParam("id_corrida", $idCorrida); 
+		$stmt->bindParam("id_corredor", $idCorredor); 
 		if ($stmt->execute())
 			header('X-PHP-Response-Code: 200', true, 200);
 		else
+		{
 			header('X-PHP-Response-Code: 412', true, 412);
+			echo "{'message':'Não foi possível concluir a operação. ID da corrida ou ID do corregor não existe'}";
+		}
 	}
 	catch (Exception $ex)
 	{
@@ -93,7 +99,7 @@ function updateInscricao($idCorrida, $idCorredor)
 	}	
 }
 
-function getInscricao($idCorredor, $idCorrida)
+function getInscricaoCorrida($idCorrida, $idCorredor)
 {
 	try
 	{
@@ -122,7 +128,13 @@ function getInscricao($idCorredor, $idCorrida)
 	}		
 }
 
-function deleteInscricao($idCorredor, $idCorrida)
+
+function getInscricaoCorredor($idCorredor, $idCorrida)
+{
+	getInscricaoCorrida($idCorrida, $idCorredor);
+}
+
+function deleteInscricaoCorrida($idCorrida, $idCorredor)
 {
 	try
 	{
@@ -148,4 +160,8 @@ function deleteInscricao($idCorredor, $idCorrida)
 	}		
 }
 
+function deleteInscricaoCorredor($idCorredor, $idCorrida)
+{
+	deleteInscricaoCorrida($idCorrida, $idCorredor);
+}
 ?>
