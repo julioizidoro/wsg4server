@@ -1,6 +1,6 @@
 <?php
 require 'Slim-2.6.2/Slim/Slim.php';
-require 'bd.php';
+require 'db.php';
 
 \Slim\Slim::registerAutoloader();
 $app = new \Slim\Slim();
