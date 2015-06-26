@@ -157,7 +157,7 @@ function deleteCorrida($id)
 				header('X-PHP-Response-Code: 200', true, 200);
 				echo "{'message':'Corrida apagada'}";
 			}
-			else
+			else // vai entrar aqui em algum caso?
 			{
 				header('X-PHP-Response-Code: 412', true, 412);
 				echo "{'message':'A corrida não pôde ser excluída.'}";

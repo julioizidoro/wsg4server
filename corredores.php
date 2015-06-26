@@ -156,7 +156,7 @@ function deleteCorredor($id)
 				header('X-PHP-Response-Code: 200', true, 200);
 				echo "{'message':'Corredor excluído.'}";	
 			}
-			else
+			else // vai entrar aqui em algum caso?
 			{
 				header('X-PHP-Response-Code: 412', true, 412);
 				echo "{'message':'O corredor não pôde ser excluído.'}";
