@@ -175,4 +175,22 @@ function deleteCorredor($id)
 	}	
 }
 
+function getCorredoresAtivos()
+{
+	try
+	{
+		$sql = "SELECT * FROM corredor WHERE status LIKE 'Ativo'";
+		$stmt = getConn()->query($sql);
+		$corredores = $stmt->fetchAll(PDO::FETCH_OBJ);
+
+		header('X-PHP-Response-Code: 200', true, 200);
+		echo '{"corredores":'.json_encode($corredores)."}";
+	}
+	catch (Exception $ex)
+	{
+		header('X-PHP-Response-Code: 500', true, 500);
+		echo "{'message':'Ocorreu um erro processando o comando. Detalhes: " . $ex->getMessage() ."'}";	
+	}	
+}
+
 ?>

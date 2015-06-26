@@ -68,19 +68,42 @@ function inscreveCorredorNaCorrida($idCorrida, $idCorredor)
 {
 	try
 	{
-		$sql = "INSERT INTO inscricao (corrida_idcorrida, corredor_idcorredor, statuspagamento) ".
-						   "VALUES (:id_corrida,:id_corredor, false) "; // false pq supõe que primeiro só insere e depois registra o pagamento
-		$conn = getConn();
-		$stmt = $conn->prepare($sql);
-		$stmt->bindParam("id_corrida",$idCorrida);
-		$stmt->bindParam("id_corredor", $idCorredor);
-		if ($stmt->execute())
-			header('X-PHP-Response-Code: 201', true, 201);
+		$corredor = selectCorredorById($idCorredor);
+		$corrida = selectCorridaById($idCorrida);
+
+		if ($corrida == false) 
+		{		
+			header('X-PHP-Response-Code: 404', true, 404);
+			echo "{'message':'Não existe corrida com esse ID.'}";
+		}
+		elseif ($corredor == false) {
+			header('X-PHP-Response-Code: 404', true, 404);
+			echo "{'message':'Não existe corredor com esse ID.'}";
+		}
+		elseif ($corrida->status != "Aberta") {
+			header('X-PHP-Response-Code: 403', true, 403);
+			echo "{'message':'A corrida não está aberta. Não podem ser feitas inscrições.'}";
+		}
+		elseif ($corredor->status != "Ativo") {
+			header('X-PHP-Response-Code: 403', true, 403);
+			echo "{'message':'O corredor está inativo. A inscrição não pode ser efetuada.'}";
+		}
 		else
 		{
-			header('X-PHP-Response-Code: 404', true, 404);
-			echo "{'message':'Não foi possível concluir a operação. ID da corrida ou ID do corredor não existe'}";	
-		}
+			$sql = "INSERT INTO inscricao (corrida_idcorrida, corredor_idcorredor, statuspagamento) ".
+							   "VALUES (:id_corrida,:id_corredor, false) "; // false pq supõe que primeiro só insere e depois registra o pagamento
+			$conn = getConn();
+			$stmt = $conn->prepare($sql);
+			$stmt->bindParam("id_corrida",$idCorrida);
+			$stmt->bindParam("id_corredor", $idCorredor);
+			if ($stmt->execute())
+				header('X-PHP-Response-Code: 201', true, 201);
+			else // não deve entrar aqui em nenhum caso
+			{
+				header('X-PHP-Response-Code: 404', true, 404);
+				echo "{'message':'Não foi possível concluir a operação. ID da corrida ou ID do corredor não existe'}";	
+			}
+		}	
 	}
 	catch (Exception $ex)
 	{
@@ -157,8 +180,12 @@ function getInscricaoCorrida($idCorrida, $idCorredor)
 			
 			if ($inscricao != false) 
 			{
+				if ($corrida->status != "Confirmada")
+					echo "{'message':'Corrida não está aberta. Não podem ser feitas inscrições.'}";
+				else {	
 				header('X-PHP-Response-Code: 200', true, 200);
 				echo json_encode($inscricao);
+			}
 			} 
 			else 
 			{

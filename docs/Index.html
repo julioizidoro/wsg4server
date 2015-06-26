@@ -180,6 +180,15 @@ Não usado
 </td><td class="cell">Não usado
 </td><td class="cell">
 Não usado
+</td></tr><tr valign="top"><td class="firstcolumn">
+\corridas\abertas
+</td><td class="cell">
+Retorna a lista de Corridas com status igual a "Aberta"
+</td><td class="cell">
+Não usado
+</td><td class="cell">Não usado
+</td><td class="cell">
+Não usado
 </td></tr><tr valign="top">
 <td class="firstcolumn">
 \corridas\[id]
@@ -214,7 +223,16 @@ Não usado
 Não usado (apagaria todos os Corredores)
 </td>
 </tr>
-<tr valign="top">
+<tr valign="top"><td class="firstcolumn">
+\corredores\ativos
+</td><td class="cell">
+Retorna a lista de Corredores com status igual a "Ativo"
+</td><td class="cell">
+Não usado
+</td><td class="cell">Não usado
+</td><td class="cell">
+Não usado
+</td></tr><tr valign="top">
 <td class="firstcolumn">
 \corredores\[id]
 </td>
@@ -278,7 +296,7 @@ Corredor
 nessa Corrida (*1)(*4)</td>
 <td class="cell">Cria uma Inscrição para um Corredor
 nessa
-Corrida (*1)(*3)</td>
+Corrida (*1)(*3)(*5)(*6)</td>
 <td class="cell">Atualiza os dados dessa Inscrição (*1)(*2)</td>
 <td class="cell">Remove essa Inscrição (*1)(*4)</td>
 </tr>
@@ -297,5 +315,5 @@ parâmetro. É registrada sempre com o status de pagamento
 criada sempre antes da confirmação de
 pagamento) e os
 demais dados zerados (dados referentes à participação
-do corredor nessa corrida).</p><p>(*4) Caso não exista inscrição para o Corredor nessa Corrida, também será retornado Erro 404.</p>
+do corredor nessa corrida).</p><p>(*4) Caso não exista inscrição para o Corredor nessa Corrida, também será retornado Erro 404.</p><p>(*5) Caso o status dessa Corrida seja diferente de "Aberta", será retornado Erro 403.</p><p>(*6) Caso o status desse Corredor seja diferente de "Ativo", também será retornado Erro 403.</p>
 </body></html>
