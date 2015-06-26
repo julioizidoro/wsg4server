@@ -39,7 +39,7 @@ $app->delete('/corridas/:idCorrida/corredores/:idCorredor', 'deleteInscricaoCorr
 $app->delete('/corredores/:idCorredor/corridas/:idCorrida', 'deleteInscricaoCorredor');
 
 $app->get('/', function() use ($app) {
-    $app->redirect('docs/Index.html');
+    $app->redirect('docs/index.html');
 });
 
 $app->run();
