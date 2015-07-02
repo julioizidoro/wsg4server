@@ -55,22 +55,29 @@ function addCorredor()
 	try
 	{
 		$corredor = getRequestContents();
-		$sql = "INSERT INTO corredor (nome, datanascimento, cidade, estado, status) ".
-							"VALUES (:nome, :datanascimento, :cidade, :estado, :status) "; 
-		$conn = getConn();
-		$stmt = bindCorredorParams($sql, $corredor, $conn); 
-		if ($stmt->execute())
-		{
-			$corredor->idcorredor = $conn->lastInsertId();
-			
-			header('X-PHP-Response-Code: 201', true, 201);
-			echo json_encode($corredor);
+		if ($corredor != false) {
+			$sql = "INSERT INTO corredor (nome, datanascimento, cidade, estado, status) ".
+								"VALUES (:nome, :datanascimento, :cidade, :estado, :status) "; 
+			$conn = getConn();
+			$stmt = bindCorredorParams($sql, $corredor, $conn); 
+			if ($stmt->execute())
+			{
+				$corredor->idcorredor = $conn->lastInsertId();
+				
+				header('X-PHP-Response-Code: 201', true, 201);
+				echo json_encode($corredor);
+			}
+			else
+			{
+				header('X-PHP-Response-Code: 412', true, 412);
+				echo "{'message':'Os dados do corredor não puderam ser inseridos.'}";
+			}
 		}
-		else
+		else 
 		{
-			header('X-PHP-Response-Code: 412', true, 412);
-			echo "{'message':'Os dados do corredor não puderam ser inseridos.'}";
-		}			
+			header('X-PHP-Response-Code: 400', true, 400);
+			echo "{'message':'Os dados do corredor estão incompletos.'}";
+		}				
 	}
 	catch (Exception $ex)
 	{

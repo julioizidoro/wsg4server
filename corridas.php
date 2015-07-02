@@ -56,22 +56,30 @@ function addCorrida()
 	try
 	{
 		$corrida = getRequestContents();
-		$sql = "INSERT INTO corrida (nome,descricao,data,cidade,estado,valorinscricao,status) ".
-							"VALUES (:nome,:descricao,:data,:cidade,:estado,:valorinscricao,:status) "; 
-		$conn = getConn();
-		$stmt = bindCorridaParams($sql, $corrida, $conn);
-		if ($stmt->execute())
+		if ($corrida != false) 
 		{
-			$corrida->idcorrida = $conn->lastInsertId();
-			
-			header('X-PHP-Response-Code: 201', true, 201);
-			echo json_encode($corrida);
+			$sql = "INSERT INTO corrida (nome,descricao,data,cidade,estado,valorinscricao,status) ".
+								"VALUES (:nome,:descricao,:data,:cidade,:estado,:valorinscricao,:status) "; 
+			$conn = getConn();
+			$stmt = bindCorridaParams($sql, $corrida, $conn);
+			if ($stmt->execute())
+			{
+				$corrida->idcorrida = $conn->lastInsertId();
+				
+				header('X-PHP-Response-Code: 201', true, 201);
+				echo json_encode($corrida);
+			}
+			else
+			{
+				header('X-PHP-Response-Code: 412', true, 412);
+				echo "{'message':'Os dados da corrida não puderam ser inseridos.'}";
+			}
 		}
 		else
 		{
-			header('X-PHP-Response-Code: 412', true, 412);
-			echo "{'message':'Os dados da corrida não puderam ser inseridos.'}";
-		}
+			header('X-PHP-Response-Code: 412', true, 400);
+			echo "{'message':'Os dados da corrida estão incompletos.'}";
+		}	
 	}
 	catch (Exception $ex)
 	{
