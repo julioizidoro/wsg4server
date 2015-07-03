@@ -80,7 +80,7 @@ function inscreveCorredorNaCorrida($idCorrida, $idCorredor)
 			header('X-PHP-Response-Code: 404', true, 404);
 			echo "{'message':'Não existe corredor com esse ID.'}";
 		}
-		elseif ($corrida->status != "Aberta") {
+		elseif ($corrida->status != ("Aberta" || "Confirmada")) {
 			header('X-PHP-Response-Code: 403', true, 403);
 			echo "{'message':'A corrida não está aberta. Não podem ser feitas inscrições.'}";
 		}
@@ -96,8 +96,10 @@ function inscreveCorredorNaCorrida($idCorrida, $idCorredor)
 			$stmt = $conn->prepare($sql);
 			$stmt->bindParam("id_corrida",$idCorrida);
 			$stmt->bindParam("id_corredor", $idCorredor);
-			if ($stmt->execute())
+			if ($stmt->execute()) {
 				header('X-PHP-Response-Code: 201', true, 201);
+				echo "{'message':'Inscrção realizada com sucesso'}";
+			}	
 			else // não deve entrar aqui em nenhum caso
 			{
 				header('X-PHP-Response-Code: 404', true, 404);
