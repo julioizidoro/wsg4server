@@ -10,6 +10,11 @@ $app->response()->header('Access-Control-Allow-Headers', 'Content-Type');
 $app->response()->header('Access-Control-Allow-Methods', 'GET, POST, PUT, OPTIONS, DELETE');
 $app->response()->header('Access-Control-Allow-Origin', '*');
 
+$app->options('/(:name+)', function() use ($app) {
+    $app->response()->header('Access-Control-Allow-Headers', 'access, content-type');
+	$app->response()->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+});
+
 include 'corridas.php';
 $app->get('/corridas', 'getCorridas');
 $app->post('/corridas', 'addCorrida');
